@@ -1,0 +1,87 @@
+openapi: 3.0.1
+info:
+  title: All-The-Lights Favorites API
+  version: 1.0.0
+externalDocs:
+  description: View on GitHub
+  url: https://github.com/Ubunfu/all-the-lights-favorites
+tags:
+- name: favorites
+  description: Favorites Operations
+paths:
+  /favorites:
+    get:
+      tags:
+        - favorites
+      summary: Retrieve list of favorited light displays
+      operationId: getFavorites
+      parameters: 
+        - name: id
+          in: query
+          description: ID of a registered user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FavoritesResp'
+        404:
+          description: User Not Found
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResp'
+        500:
+          description: Server Error
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResp'
+  /favorite:
+    post:
+      tags:
+        - favorites
+      summary: Add a display to a user's favorites
+      operationId: addFavorite
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFavoriteReq'
+        required: true
+      responses:
+        200:
+          description: OK
+        500:
+          description: Server Error
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ErrorResp'
+components:
+  schemas:
+    ErrorResp:
+      type: object
+      properties:
+        error:
+          type: string
+        errorDetail:
+          type: string
+    FavoritesResp:
+      type: array
+      items:
+        type: object
+        properties:
+          address:
+            type: string
+    AddFavoriteReq:
+      type: object
+      properties:
+        userId:
+          type: string
+        address:
+          type: string
