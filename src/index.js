@@ -1,64 +1,39 @@
-require('dotenv').config();
-const { log } = require('./util/logger.js');
-const paymentService = require('./service/paymentService.js');
-const dbService = require('./service/dbService.js');
-const AWS = require('aws-sdk');
-const docClient = new AWS.DynamoDB.DocumentClient();
+require('dotenv').config()
+const { log } = require('./util/logger.js')
+const AWS = require('aws-sdk')
+const docClient = new AWS.DynamoDB.DocumentClient()
+const favoritesService = require('./favorites/favoritesService')
 
 exports.handler = async (event, context) => {
-    await log('Received event: ' + JSON.stringify(event, null, 2));
+    await log('Received event: ' + JSON.stringify(event, null, 2))
 
-    let body;
-    let statusCode = '200';
+    let body
+    let statusCode = '200'
     const headers = {
         'Content-Type': 'application/json',
-    };
+    }
 
-    if (event.requestContext.routeKey == ' POST /pay') {
-        const player = JSON.parse(event.body).player;
-        const amount = JSON.parse(event.body).amount;
+    if (event.requestContext.routeKey == 'GET /favorites') {
+        const userId = event.queryStringParameters.id
         try {
-            await paymentService.pay(player, amount);
+            const favoritesResp = await favoritesService.getFavorites(docClient, userId)
+            // if (favoritesResp == undefined) {
+            //     statusCode = '404'
+            //     body = {
+            //         error: 'get wallet failed',
+            //         errorDetail: 'wallet does not exist'
+            //     }
+            // } else {
+            //     body = walletResp
+            // }
         } catch (err) {
-            statusCode = '500';
-            body = {
-                error: 'payment failed',
-                errorDetail: err.message
-            }
-        }
-    } else if (event.requestContext.routeKey == 'POST /charge') {
-        const player = JSON.parse(event.body).player;
-        const amount = JSON.parse(event.body).amount;
-        try {
-            await paymentService.charge(player, amount);
-        } catch (err) {
-            if (err.message == 'wallet not found') {
-                statusCode = '404';
+            if (err.message == 'user not found') {
+                statusCode = '404'
             } else {
-                statusCode = '500';
+                statusCode = '500'
             }
             body = {
-                error: 'charge failed',
-                errorDetail: err.message
-            }
-        }
-    } else if (event.requestContext.routeKey == 'GET /wallet') {
-        const walletId = event.queryStringParameters.id;
-        try {
-            const walletResp = await dbService.getWallet(docClient, walletId);
-            if (walletResp.WalletId == undefined) {
-                statusCode = '404';
-                body = {
-                    error: 'get wallet failed',
-                    errorDetail: 'wallet does not exist'
-                }
-            } else {
-                body = walletResp;
-            }
-        } catch (err) {
-            statusCode = '500';
-            body = {
-                error: 'get wallet failed',
+                error: 'get favorites failed',
                 errorDetail: err.message
             }
         }
@@ -66,10 +41,10 @@ exports.handler = async (event, context) => {
         statusCode = '404'
     }
 
-    body = JSON.stringify(body);
+    body = JSON.stringify(body)
     return {
         statusCode,
         body,
         headers,
-    };
-};
+    }
+}
