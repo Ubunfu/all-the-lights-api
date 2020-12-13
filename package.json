@@ -1,5 +1,5 @@
 {
-  "name": "all-the-lights-favorites",
+  "name": "all-the-lights-api-favorites",
   "version": "0.1.0",
   "description": "The backend favorites API for all-the-lights",
   "main": "src/index.js",

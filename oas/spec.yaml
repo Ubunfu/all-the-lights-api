@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 externalDocs:
   description: View on GitHub
-  url: https://github.com/Ubunfu/all-the-lights-favorites
+  url: https://github.com/Ubunfu/all-the-lights-api-favorites
 tags:
 - name: favorites
   description: Favorites Operations
